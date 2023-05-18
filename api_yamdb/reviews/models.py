@@ -8,27 +8,25 @@ class User(AbstractUser):
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, db_index=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Категория'
-        verbose_names = 'Категории'
         ordering = ['name']
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, db_index=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Жанр'
-        verbose_names = 'Жанры'
         ordering = ['name']
 
 
@@ -37,6 +35,7 @@ class Title(models.Model):
     year = models.IntegerField(verbose_name='Дата выхода')
     description = models.TextField(
         verbose_name='Описание',
+        max_length=200,
         null=True,
         blank=True
     )
@@ -50,10 +49,31 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         related_name='titles',
         null=True,
+        blank=True
     )
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'Произведение'
+
+
+class GenreTitle(models.Model):
+    title = models.ForeignKey(
+        Title,
+        verbose_name='Произведение',
+        on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        verbose_name='Жанр',
+        on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.title}, жанр - {self.genre}'
+
+    class Meta:
+        verbose_name = 'Произведение и жанр'
 
 
 class Review(models.Model):
