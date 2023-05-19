@@ -1,11 +1,42 @@
-from rest_framework import viewsets
-
+from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Avg
+from rest_framework import filters, viewsets
 from django.shortcuts import get_object_or_404
-
 from reviews.models import Category, Comment, Genre, Review, Title, User
+from .mixins import ListCreateViewSet
+from .permissions import (IsAdminOrReadOnly)
+from .serializers import (CategorySerializer,
+                          GenreSerializer,
+                          TitleSerializer,
+                          CommentSerializer,
+                          ReviewSerializer)
 
-from .serializers import CommentSerializer, ReviewSerializer
+
+class CategoryViewSet(ListCreateViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class GenreViewSet(ListCreateViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).all()
+    serializer_class = TitleSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = [DjangoFilterBackend]
 
 
 class ReviewVieWSet(viewsets.ModelViewSet):
@@ -44,9 +75,3 @@ class CommentVieWSet(viewsets.ModelViewSet):
             id=self.kwargs.get('review_id')
         )
         serializer.save(author=self.request.user, review=review)
-
-# добавить в TitleViewSet:
-
-# queryset = Title.objects.annotate(
-#        rating=Avg('reviews__score')
-#    ).all()
