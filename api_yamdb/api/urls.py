@@ -1,8 +1,6 @@
 from rest_framework.routers import DefaultRouter
 
-from api.views import (CategoryViewSet, TitleViewSet, GenreViewSet
-                       )
-
+from api.views import CategoryViewSet, GenreViewSet, TitleViewSet
 
 router_v1 = DefaultRouter()
 router_v1.register('categories', CategoryViewSet, basename='categories')

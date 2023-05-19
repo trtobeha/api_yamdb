@@ -1,15 +1,15 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Avg
 from rest_framework import filters, viewsets
+
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from reviews.models import Category, Comment, Genre, Review, Title, User
+
+from reviews.models import Category, Genre, Review, Title
+
 from .mixins import ListCreateViewSet
-from .permissions import (IsAdminOrReadOnly)
-from .serializers import (CategorySerializer,
-                          GenreSerializer,
-                          TitleSerializer,
-                          CommentSerializer,
-                          ReviewSerializer)
+from .permissions import IsAdminOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, TitleSerializer)
 
 
 class CategoryViewSet(ListCreateViewSet):
