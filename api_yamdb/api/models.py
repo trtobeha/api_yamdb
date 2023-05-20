@@ -1,5 +1,3 @@
-from rest_framework_simplejwt.tokens import RefreshToken
-
 from django.db import models
 
 
@@ -19,11 +17,20 @@ class User(models.Model):
         max_length=254,
         required=True,
     )
-    first_name = None
-    last_name = None
-    bio = None
+    first_name = models.CharField(
+        blank=False,
+        null=False,
+        max_length=150,
+    )
+    last_name = models.CharField(
+        blank=False,
+        null=False,
+        max_length=150,
+    )
+    bio = models.CharField(
+        max_length=300,
+    )
     role = None  # default=user
-    is_verified = models.BooleanField(default=False)
     confirmation_code = None
 
     class Meta:
