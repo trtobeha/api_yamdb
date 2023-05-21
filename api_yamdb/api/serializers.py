@@ -5,7 +5,7 @@ from api.models import User
 
 
 class TokenSerializer(TokenObtainPairSerializer):
-    confirmation_code = serializers.CharField(max_length=255)
+    confirmation_code = serializers.CharField(required=True)
     username = serializers.RegexField(
         regex=r'^[\w.@+-]+\Z',
         max_length=150,
