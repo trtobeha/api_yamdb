@@ -1,6 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -11,21 +10,21 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
-
-from reviews.models import User
-from api.serializers import SignUpSerializer, TokenSerializer, UserSerializer
-
-
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
-from reviews.models import Category, Genre, Review, Title
+from api.serializers import SignUpSerializer, TokenSerializer, UserSerializer
+from reviews.models import Category, Genre, Review, Title, User
 
-from .mixins import ListCreateViewSet
-from .permissions import IsAdminOrReadOnly
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer)
+from api.mixins import ListCreateViewSet
+from api.permissions import IsAdminOrReadOnly
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    TitleSerializer,
+)
 
 
 class TokenViewSet(viewsets.ReadOnlyModelViewSet):
@@ -69,7 +68,7 @@ class SignUpViewSet(viewsets.ReadOnlyModelViewSet):
         email = serializer.validated_data['email']
         try:
             user, created = User.objects.get_or_create(
-                username=username, email=email
+                username=username, email=email,
             )
         except ValueError:
             return Response(
@@ -86,6 +85,7 @@ class SignUpViewSet(viewsets.ReadOnlyModelViewSet):
             fail_silently=False,
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class CategoryViewSet(ListCreateViewSet):
     queryset = Category.objects.all()
@@ -106,9 +106,7 @@ class GenreViewSet(ListCreateViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')
-    ).all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score')).all()
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
@@ -119,17 +117,11 @@ class ReviewVieWSet(viewsets.ModelViewSet):
     # permission_classes =
 
     def get_queryset(self):
-        title = get_object_or_404(
-            Title,
-            id=self.kwargs.get('title_id')
-        )
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(
-            Title,
-            id=self.kwargs.get('title_id')
-        )
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
 
@@ -138,15 +130,9 @@ class CommentVieWSet(viewsets.ModelViewSet):
     # permission_classes =
 
     def get_queryset(self):
-        review = get_object_or_404(
-            Review,
-            id=self.kwargs.get('review_id')
-        )
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         return review.comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(
-            Review,
-            id=self.kwargs.get('review_id')
-        )
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)
