@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
-
-from reviews.models import Category, Comment, Genre, Review, Title
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from reviews.models import User
+from django.shortcuts import get_object_or_404
+
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class TokenSerializer(TokenObtainPairSerializer):
@@ -44,10 +43,10 @@ class SignUpSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['username'] == 'me':
             raise serializers.ValidationError(
-                'Имя пользователя "me" недоступно.'
+                'Имя пользователя "me" недоступно.',
             )
         if User.objects.filter(
-            email=data['email'], username=data['username']
+            email=data['email'], username=data['username'],
         ).exists():
             return data
         if User.objects.filter(email=data['email']).exists():
@@ -58,14 +57,12 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Genre
         fields = '__all__'
@@ -73,10 +70,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        slug_field='slug', many=True, queryset=Genre.objects.all()
+        slug_field='slug', many=True, queryset=Genre.objects.all(),
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Category.objects.all()
+        slug_field='slug', queryset=Category.objects.all(),
     )
 
     class Meta:
@@ -99,11 +96,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title)  # id=)
         if request.method == 'POST':
             if Review.objects.filter(
-                title=title,
-                author=request.user
+                title=title, author=request.user,
             ).exists():
                 raise serializers.ValidationError(
-                    'Вы можете оставить только один отзыв'
+                    'Вы можете оставить только один отзыв',
                 )
         return attrs
 

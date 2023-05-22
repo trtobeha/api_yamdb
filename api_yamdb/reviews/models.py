@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-ROLES_LIST = models.TextChoices('user', 'moderator', 'admin')
+ROLES_LIST = (('SR', 'user'), ('MD', 'moderator'), ('AD', 'admin'))
 
 
 class User(AbstractUser):
@@ -11,14 +11,12 @@ class User(AbstractUser):
         blank=False,
         null=False,
         max_length=150,
-        required=True,
     )
     email = models.EmailField(
         unique=True,
         blank=False,
         null=False,
         max_length=254,
-        required=True,
     )
     first_name = models.CharField(
         blank=False,
@@ -34,16 +32,21 @@ class User(AbstractUser):
         max_length=300,
         blank=True,
     )
-    role = models.CharField(choices=ROLES_LIST.choices, default='user')
+    role = models.CharField(
+        choices=ROLES_LIST,
+        default='SR',
+        max_length=10,
+    )
     confirmation_code = models.CharField(
         unique=True,
         blank=False,
         null=False,
+        max_length=255,
     )
 
     class Meta:
         ordering = ['username']
-        default_related_name = 'users'
+        default_related_name = 'user'
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
 
@@ -59,7 +62,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Категория'
+        verbose_name = 'категория'
         ordering = ['name']
 
 
@@ -71,54 +74,53 @@ class Genre(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Жанр'
+        verbose_name = 'жанр'
         ordering = ['name']
 
 
 class Title(models.Model):
-    name = models.CharField(verbose_name='Название', max_length=200)
-    year = models.IntegerField(verbose_name='Дата выхода')
+    name = models.CharField(verbose_name='название', max_length=200)
+    year = models.IntegerField(verbose_name='дата выхода')
     description = models.TextField(
-        verbose_name='Описание',
+        verbose_name='описание',
         max_length=200,
         null=True,
-        blank=True
+        blank=True,
     )
-    genre = models.ManyToManyField(
-        Genre,
-        verbose_name='Жанр'
-    )
+    genre = models.ManyToManyField(Genre, verbose_name='жанр')
     category = models.ForeignKey(
         Category,
-        verbose_name='Категория',
+        verbose_name='категория',
         on_delete=models.SET_NULL,
         related_name='titles',
         null=True,
-        blank=True
+        blank=True,
     )
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Произведение'
+        verbose_name = 'произведение'
 
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
-        verbose_name='Произведение',
-        on_delete=models.CASCADE)
+        verbose_name='произведение',
+        on_delete=models.CASCADE,
+    )
     genre = models.ForeignKey(
         Genre,
-        verbose_name='Жанр',
-        on_delete=models.CASCADE)
+        verbose_name='жанр',
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self):
         return f'{self.title}, жанр - {self.genre}'
 
     class Meta:
-        verbose_name = 'Произведение и жанр'
+        verbose_name = 'произведение и жанр'
 
 
 class Review(models.Model):
@@ -141,7 +143,7 @@ class Review(models.Model):
         validators=(
             MinValueValidator(1),
             MaxValueValidator(10),
-        )
+        ),
     )
     pub_date = models.DateTimeField(
         'дата публикации',
@@ -150,8 +152,8 @@ class Review(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'отзывы'
 
     def __str__(self):
         return self.text
@@ -161,8 +163,7 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments'
-
+        related_name='comments',
     )
     text = models.CharField(
         'текст комментария',
@@ -181,8 +182,8 @@ class Comment(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Кооментарий'
-        verbose_name_plural = 'Комментарии'
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
 
     def __str__(self):
         return self.text
