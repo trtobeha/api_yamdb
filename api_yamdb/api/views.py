@@ -23,7 +23,8 @@ from api.serializers import (
     CommentSerializer,
     GenreSerializer,
     ReviewSerializer,
-    TitleSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
 )
 
 
@@ -107,9 +108,13 @@ class GenreViewSet(ListCreateViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score')).all()
-    serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend, )
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

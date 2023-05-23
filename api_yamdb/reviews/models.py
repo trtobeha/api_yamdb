@@ -7,26 +7,24 @@ ROLES_LIST = (('SR', 'user'), ('MD', 'moderator'), ('AD', 'admin'))
 
 class User(AbstractUser):
     username = models.CharField(
+        max_length=150,
         unique=True,
         blank=False,
-        null=False,
-        max_length=150,
+        null=False
     )
     email = models.EmailField(
+        max_length=254,
         unique=True,
         blank=False,
-        null=False,
-        max_length=254,
+        null=False
     )
     first_name = models.CharField(
-        blank=False,
-        null=False,
         max_length=150,
+        blank=True,
     )
     last_name = models.CharField(
-        blank=False,
-        null=False,
         max_length=150,
+        blank=True,
     )
     bio = models.CharField(
         max_length=300,
@@ -58,24 +56,23 @@ class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, db_index=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'категория'
         ordering = ['name']
+
+    def __str__(self):
+        return f'{self.name} {self.name}'
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, db_index=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        verbose_name = 'жанр'
-        ordering = ['name']
+        verbose_name = 'Жанр'
+
+    def __str__(self):
+        return f'{self.name} {self.name}'
 
 
 class Title(models.Model):
@@ -87,7 +84,6 @@ class Title(models.Model):
         null=True,
         blank=True,
     )
-    genre = models.ManyToManyField(Genre, verbose_name='жанр')
     category = models.ForeignKey(
         Category,
         verbose_name='категория',
@@ -96,12 +92,15 @@ class Title(models.Model):
         null=True,
         blank=True,
     )
+    genre = models.ManyToManyField(
+        Genre, related_name='titles'
+    )
+
+    class Meta:
+        verbose_name = 'Произведение'
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name = 'произведение'
 
 
 class GenreTitle(models.Model):

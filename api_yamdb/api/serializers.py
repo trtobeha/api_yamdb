@@ -58,27 +58,44 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
+        exclude = ('id', )
         model = Category
-        fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
+        exclude = ('id', )
         model = Genre
-        fields = '__all__'
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(
-        slug_field='slug', many=True, queryset=Genre.objects.all(),
+class TitleReadSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(
+        read_only=True,
+        many=True
     )
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
+class TitleWriteSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Category.objects.all(),
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
     )
 
     class Meta:
-        model = Title
         fields = '__all__'
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
