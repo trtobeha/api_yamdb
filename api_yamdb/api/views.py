@@ -33,7 +33,7 @@ class TokenViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]  # а оно вообще надо?
 
     @api_view(['POST'])
-    @permission_classes(['AllowAny'])
+    # @permission_classes(['AllowAny'])
     def get_token(request):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -60,7 +60,7 @@ class SignUpViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]  # а оно вообще надо?
 
     @api_view(['POST'])
-    @permission_classes(['AllowAny'])
+    # @permission_classes(['AllowAny'])
     def get_token(request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
