@@ -1,7 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import (
+    IsAdminUser,
+    AllowAny,
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )
@@ -13,9 +15,6 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
-from api.serializers import SignUpSerializer, TokenSerializer, UserSerializer
-from reviews.models import Category, Genre, Review, Title, User
-
 from api.mixins import ListCreateViewSet
 from api.permissions import IsAdminOrReadOnly
 from api.serializers import (
@@ -23,14 +22,17 @@ from api.serializers import (
     CommentSerializer,
     GenreSerializer,
     ReviewSerializer,
+    SignUpSerializer,
     TitleSerializer,
+    TokenSerializer,
+    UserSerializer,
 )
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class TokenViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = TokenSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # а оно вообще надо?
 
     @api_view(['POST'])
     @permission_classes(['AllowAny'])
@@ -46,29 +48,27 @@ class TokenViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# вьюха юзера
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # а оно вообще надо?
+    permission_classes = [IsAdminUser]
 
 
-# вьюха регистрации
 class SignUpViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = SignUpSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # а оно вообще надо?
 
     @api_view(['POST'])
     @permission_classes(['AllowAny'])
-    def get_token(request):
+    def signup(request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
         try:
             user, created = User.objects.get_or_create(
-                username=username, email=email,
+                username=username,
+                email=email,
             )
         except ValueError:
             return Response(
@@ -112,27 +112,29 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
 
-class ReviewVieWSet(viewsets.ModelViewSet):
+class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    # permission_classes =
 
+    @permission_classes(['IsAuthenticatedOrReadOnly'])
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
+    @permission_classes(['IsAuthenticated'])
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentVieWSet(viewsets.ModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    # permission_classes =
 
+    @permission_classes(['IsAuthenticatedOrReadOnly'])
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         return review.comments.all()
 
+    @permission_classes(['IsAuthenticated'])
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)

@@ -46,7 +46,8 @@ class SignUpSerializer(serializers.ModelSerializer):
                 'Имя пользователя "me" недоступно.',
             )
         if User.objects.filter(
-            email=data['email'], username=data['username'],
+            email=data['email'],
+            username=data['username'],
         ).exists():
             return data
         if User.objects.filter(email=data['email']).exists():
@@ -70,10 +71,13 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        slug_field='slug', many=True, queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all(),
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Category.objects.all(),
+        slug_field='slug',
+        queryset=Category.objects.all(),
     )
 
     class Meta:
@@ -96,7 +100,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title)  # id=)
         if request.method == 'POST':
             if Review.objects.filter(
-                title=title, author=request.user,
+                title=title,
+                author=request.user,
             ).exists():
                 raise serializers.ValidationError(
                     'Вы можете оставить только один отзыв',
