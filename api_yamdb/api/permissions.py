@@ -6,10 +6,14 @@ from django.http import HttpRequest, HttpResponse
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS or (
-            request.user.is_authenticated
-            and (request.user.is_admin or request.user.is_superuser)
-        )
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user if request.user.is_authenticated else False
+
+
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (request.user.is_authenticated and request.user.is_admin)
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
