@@ -10,6 +10,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
 from api.mixins import ListCreateViewSet
+from .filters import TitlesFilter
 from api.permissions import IsAdmin, IsAdminOrReadOnly
 from api.serializers import (
     CategorySerializer,
@@ -26,14 +27,15 @@ from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(['POST'])
-@permission_classes(['AllowAny'])
+@permission_classes([permissions.AllowAny])
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = serializer.validated_data['username']
-    confirmation_code = serializer.validated_data['confirmation_code']
-    user = get_object_or_404(User, username=username)
-    if default_token_generator.check_token(user, confirmation_code):
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data['username']
+    )
+    if default_token_generator.check_token(user, serializer.validated_data['confirmation_code']):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -45,7 +47,7 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     filter_backends = (filters.SearchFilter,)
     lookup_field = 'username'
-    permission_classes = [IsAdminOrReadOnly]  # [IsAdmin] [permissions.IsAdminUser]
+    permission_classes = [IsAdmin]  # [IsAdmin] [permissions.IsAdminUser]
     http_method_names = [
         'get',
         'post',
@@ -75,7 +77,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes(['AllowAny'])
+@permission_classes([permissions.AllowAny])
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -125,6 +127,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score')).all()
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitlesFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -135,12 +138,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
-    @permission_classes(['IsAuthenticatedOrReadOnly'])
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
-    @permission_classes(['IsAuthenticated'])
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
@@ -149,12 +150,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
-    @permission_classes(['IsAuthenticatedOrReadOnly'])
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         return review.comments.all()
 
-    @permission_classes(['IsAuthenticated'])
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)

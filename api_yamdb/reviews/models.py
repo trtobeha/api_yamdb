@@ -2,10 +2,16 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-ROLES_LIST = (('SR', 'user'), ('MD', 'moderator'), ('AD', 'admin'))
-
 
 class User(AbstractUser):
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
+    ROLES = [
+        (ADMIN, 'Administrator'),
+        (MODERATOR, 'Moderator'),
+        (USER, 'User'),
+    ]
     username = models.CharField(
         max_length=150, unique=True, blank=False, null=False
     )
@@ -25,8 +31,8 @@ class User(AbstractUser):
         blank=True,
     )
     role = models.CharField(
-        choices=ROLES_LIST,
-        default='SR',
+        choices=ROLES,
+        default=USER,
         max_length=10,
     )
     confirmation_code = models.CharField(
@@ -35,6 +41,14 @@ class User(AbstractUser):
         null=False,
         max_length=255,
     )
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
 
     class Meta:
         ordering = ['username']
