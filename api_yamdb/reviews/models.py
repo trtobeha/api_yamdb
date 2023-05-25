@@ -133,12 +133,6 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='автор',
-    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -147,11 +141,17 @@ class Review(models.Model):
     text = models.CharField(
         max_length=200,
     )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='автор',
+    )
     score = models.IntegerField(
         'оценка',
         validators=(
             MinValueValidator(1),
-            MaxValueValidator(10),
+            MaxValueValidator(10)
         ),
     )
     pub_date = models.DateTimeField(
@@ -161,8 +161,14 @@ class Review(models.Model):
     )
 
     class Meta:
-        verbose_name = 'отзыв'
-        verbose_name_plural = 'отзывы'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author', ),
+                name='unique_review'
+            )]
+        ordering = ('pub_date',)
 
     def __str__(self):
         return self.text
