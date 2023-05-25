@@ -13,10 +13,16 @@ class User(AbstractUser):
         (USER, 'User'),
     ]
     username = models.CharField(
-        max_length=150, unique=True, blank=False, null=False
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
     )
     email = models.EmailField(
-        max_length=254, unique=True, blank=False, null=False
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False,
     )
     first_name = models.CharField(
         max_length=150,
@@ -35,12 +41,10 @@ class User(AbstractUser):
         default=USER,
         max_length=10,
     )
-    confirmation_code = models.CharField(
-        unique=True,
-        blank=False,
-        null=False,
-        max_length=255,
-    )
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
 
     @property
     def is_moderator(self):
@@ -48,7 +52,7 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return self.role == self.ADMIN or self.is_superuser
 
     class Meta:
         ordering = ['username']

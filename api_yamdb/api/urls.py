@@ -9,8 +9,8 @@ from api.views import (
     ReviewViewSet,
     TitleViewSet,
     UserViewSet,
-    signup,
     get_token,
+    signup,
 )
 
 router = SimpleRouter()

@@ -9,8 +9,8 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
+from api.filters import TitlesFilter
 from api.mixins import ListCreateViewSet
-from .filters import TitlesFilter
 from api.permissions import IsAdmin, IsAdminOrReadOnly
 from api.serializers import (
     CategorySerializer,
@@ -32,10 +32,11 @@ def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
+        User, username=serializer.validated_data['username'],
     )
-    if default_token_generator.check_token(user, serializer.validated_data['confirmation_code']):
+    if default_token_generator.check_token(
+        user, serializer.validated_data['confirmation_code'],
+    ):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -47,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     filter_backends = (filters.SearchFilter,)
     lookup_field = 'username'
-    permission_classes = [IsAdmin]  # [IsAdmin] [permissions.IsAdminUser]
+    permission_classes = [IsAdmin]
     http_method_names = [
         'get',
         'post',
