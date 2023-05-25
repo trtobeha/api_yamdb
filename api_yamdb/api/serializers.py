@@ -1,18 +1,14 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.validators import UniqueValidator
 
 from django.shortcuts import get_object_or_404
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
-class TokenSerializer(TokenObtainPairSerializer):
-    confirmation_code = serializers.CharField(required=True)
-    username = serializers.RegexField(
-        regex=r'^[\w.@+-]+\Z',
-        max_length=150,
-        required=True,
-    )
+class GetTokenSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
 
     class Meta:
         model = User
@@ -20,9 +16,28 @@ class TokenSerializer(TokenObtainPairSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z',
+        required=True,
+        max_length=150,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+    email = serializers.EmailField(
+        required=True,
+        max_length=254,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -46,7 +61,8 @@ class SignUpSerializer(serializers.ModelSerializer):
                 'Имя пользователя "me" недоступно.',
             )
         if User.objects.filter(
-            email=data['email'], username=data['username'],
+            email=data['email'],
+            username=data['username'],
         ).exists():
             return data
         if User.objects.filter(email=data['email']).exists():
@@ -58,23 +74,20 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        exclude = ('id', )
+        exclude = ('id',)
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        exclude = ('id', )
+        exclude = ('id',)
         model = Genre
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(
-        read_only=True,
-        many=True
-    )
+    genre = GenreSerializer(read_only=True, many=True)
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -85,12 +98,12 @@ class TitleReadSerializer(serializers.ModelSerializer):
 class TitleWriteSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
-        slug_field='slug'
+        slug_field='slug',
     )
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         slug_field='slug',
-        many=True
+        many=True,
     )
 
     class Meta:
@@ -113,7 +126,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title)  # id=)
         if request.method == 'POST':
             if Review.objects.filter(
-                title=title, author=request.user,
+                title=title,
+                author=request.user,
             ).exists():
                 raise serializers.ValidationError(
                     'Вы можете оставить только один отзыв',
@@ -126,7 +140,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return value
 
     class Meta:
-        fields = ()
+        fields = ('title', 'author')
         model = Review
 
 

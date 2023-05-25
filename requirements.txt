@@ -17,6 +17,8 @@ django-templated-mail==1.1.1
 djangorestframework==3.12.4
 djangorestframework-simplejwt==5.2.2
 flake8==6.0.0
+flake8-absolute-import==1.0.0.1
+flake8-commas==2.1.0
 idna==3.4
 inflection==0.5.1
 iniconfig==2.0.0

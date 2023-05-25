@@ -2,21 +2,27 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-ROLES_LIST = (('SR', 'user'), ('MD', 'moderator'), ('AD', 'admin'))
-
 
 class User(AbstractUser):
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
+    ROLES = [
+        (ADMIN, 'Administrator'),
+        (MODERATOR, 'Moderator'),
+        (USER, 'User'),
+    ]
     username = models.CharField(
         max_length=150,
         unique=True,
         blank=False,
-        null=False
+        null=False,
     )
     email = models.EmailField(
         max_length=254,
         unique=True,
         blank=False,
-        null=False
+        null=False,
     )
     first_name = models.CharField(
         max_length=150,
@@ -31,16 +37,22 @@ class User(AbstractUser):
         blank=True,
     )
     role = models.CharField(
-        choices=ROLES_LIST,
-        default='SR',
+        choices=ROLES,
+        default=USER,
         max_length=10,
     )
-    confirmation_code = models.CharField(
-        unique=True,
-        blank=False,
-        null=False,
-        max_length=255,
-    )
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN or self.is_superuser
 
     class Meta:
         ordering = ['username']
@@ -69,7 +81,7 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True, db_index=True)
 
     class Meta:
-        verbose_name = 'Жанр'
+        verbose_name = 'жанр'
 
     def __str__(self):
         return f'{self.name} {self.name}'
@@ -92,12 +104,10 @@ class Title(models.Model):
         null=True,
         blank=True,
     )
-    genre = models.ManyToManyField(
-        Genre, related_name='titles'
-    )
+    genre = models.ManyToManyField(Genre, related_name='titles')
 
     class Meta:
-        verbose_name = 'Произведение'
+        verbose_name = 'произведение'
 
     def __str__(self):
         return self.name
