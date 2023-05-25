@@ -4,128 +4,19 @@ from django.db import models
 
 
 class User(AbstractUser):
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-    USER = 'user'
-    ROLES = [
-        (ADMIN, 'Administrator'),
-        (MODERATOR, 'Moderator'),
-        (USER, 'User'),
-    ]
-    username = models.CharField(
-        max_length=150, unique=True, blank=False, null=False
-    )
-    email = models.EmailField(
-        max_length=254, unique=True, blank=False, null=False
-    )
-    first_name = models.CharField(
-        max_length=150,
-        blank=True,
-    )
-    last_name = models.CharField(
-        max_length=150,
-        blank=True,
-    )
-    bio = models.CharField(
-        max_length=300,
-        blank=True,
-    )
-    role = models.CharField(
-        choices=ROLES,
-        default=USER,
-        max_length=10,
-    )
-    confirmation_code = models.CharField(
-        unique=True,
-        blank=False,
-        null=False,
-        max_length=255,
-    )
-
-    @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
-
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
-
-    class Meta:
-        ordering = ['username']
-        default_related_name = 'user'
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'пользователи'
-
-    def __str__(self) -> str:
-        return self.username
+    ...
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True, db_index=True)
-
-    class Meta:
-        verbose_name = 'категория'
-        ordering = ['name']
-
-    def __str__(self):
-        return f'{self.name} {self.name}'
+    ...
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True, db_index=True)
-
-    class Meta:
-        verbose_name = 'жанр'
-
-    def __str__(self):
-        return f'{self.name} {self.name}'
+    ...
 
 
 class Title(models.Model):
-    name = models.CharField(verbose_name='название', max_length=200)
-    year = models.IntegerField(verbose_name='дата выхода')
-    description = models.TextField(
-        verbose_name='описание',
-        max_length=200,
-        null=True,
-        blank=True,
-    )
-    category = models.ForeignKey(
-        Category,
-        verbose_name='категория',
-        on_delete=models.SET_NULL,
-        related_name='titles',
-        null=True,
-        blank=True,
-    )
-    genre = models.ManyToManyField(Genre, related_name='titles')
-
-    class Meta:
-        verbose_name = 'произведение'
-
-    def __str__(self):
-        return self.name
-
-
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title,
-        verbose_name='произведение',
-        on_delete=models.CASCADE,
-    )
-    genre = models.ForeignKey(
-        Genre,
-        verbose_name='жанр',
-        on_delete=models.CASCADE,
-    )
-
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
-
-    class Meta:
-        verbose_name = 'произведение и жанр'
+    ...
 
 
 class Review(models.Model):
@@ -148,7 +39,7 @@ class Review(models.Model):
         validators=(
             MinValueValidator(1),
             MaxValueValidator(10),
-        ),
+        )
     )
     pub_date = models.DateTimeField(
         'дата публикации',
@@ -157,8 +48,8 @@ class Review(models.Model):
     )
 
     class Meta:
-        verbose_name = 'отзыв'
-        verbose_name_plural = 'отзывы'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
 
     def __str__(self):
         return self.text
@@ -168,7 +59,8 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
+        related_name='comments'
+
     )
     text = models.CharField(
         'текст комментария',
@@ -187,8 +79,8 @@ class Comment(models.Model):
     )
 
     class Meta:
-        verbose_name = 'комментарий'
-        verbose_name_plural = 'комментарии'
+        verbose_name = 'Кооментарий'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text
