@@ -139,7 +139,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return value
 
     class Meta:
-        fields = ('title', 'author')
+        fields = ('author', 'title')
         model = Review
 
 
