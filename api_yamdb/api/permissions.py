@@ -6,9 +6,10 @@ from django.http import HttpRequest, HttpResponse
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user if request.user.is_authenticated else False
+        return request.method in permissions.SAFE_METHODS or (
+            request.user.is_authenticated
+            and (request.user.is_admin or request.user.is_superuser)
+        )
 
 
 class IsAdmin(permissions.BasePermission):
@@ -32,19 +33,15 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
 
 class IsAdminModeratorOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return (request.method in permissions.SAFE_METHODS
-                or request.user.is_admin
-                or request.user.is_moderator
-                or obj.author == request.user)
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_admin
+            or request.user.is_moderator
+            or obj.author == request.user
+        )
 
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS
-                or request.user.is_authenticated)
-
-
-class IsModerator(permissions.BasePermission):
-    ...
-
-
-class IsSuperuser(permissions.BasePermission):
-    ...
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_authenticated
+        )
