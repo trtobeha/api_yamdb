@@ -11,22 +11,13 @@ from django.shortcuts import get_object_or_404
 
 from api.filters import TitlesFilter
 from api.mixins import ListCreateViewSet
-from api.permissions import (
-    IsAdmin,
-    IsAdminModeratorOwnerOrReadOnly,
-    IsAdminOrReadOnly,
-)
-from api.serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    GetTokenSerializer,
-    ReviewSerializer,
-    SignUpSerializer,
-    TitleReadSerializer,
-    TitleWriteSerializer,
-    UserSerializer,
-)
+from api.permissions import (IsAdmin, IsAdminModeratorOwnerOrReadOnly,
+                             IsAdminOrReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, GetTokenSerializer,
+                             ReviewSerializer, SignUpSerializer,
+                             TitleReadSerializer, TitleWriteSerializer,
+                             UserSerializer)
 from reviews.models import Category, Genre, Review, Title, User
 
 
