@@ -8,9 +8,9 @@ class User(AbstractUser):
     MODERATOR = 'moderator'
     USER = 'user'
     ROLES = [
-        (ADMIN, 'Administrator'),
-        (MODERATOR, 'Moderator'),
-        (USER, 'User'),
+        [ADMIN, 'Administrator'],
+        [MODERATOR, 'Moderator'],
+        [USER, 'User'],
     ]
     username = models.CharField(
         max_length=150,
@@ -42,6 +42,12 @@ class User(AbstractUser):
         max_length=10,
     )
 
+    class Meta:
+        ordering = ['username']
+        default_related_name = 'user'
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
+
     @property
     def is_user(self):
         return self.role == self.USER
@@ -53,12 +59,6 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
-
-    class Meta:
-        ordering = ['username']
-        default_related_name = 'user'
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'пользователи'
 
     def __str__(self) -> str:
         return self.username
@@ -125,11 +125,11 @@ class GenreTitle(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
-
     class Meta:
         verbose_name = 'произведение и жанр'
+
+    def __str__(self):
+        return f'{self.title}, жанр - {self.genre}'
 
 
 class Review(models.Model):

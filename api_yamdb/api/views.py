@@ -11,13 +11,22 @@ from django.shortcuts import get_object_or_404
 
 from api.filters import TitlesFilter
 from api.mixins import ListCreateViewSet
-from api.permissions import (IsAdmin, IsAdminModeratorOwnerOrReadOnly,
-                             IsAdminOrReadOnly)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, GetTokenSerializer,
-                             ReviewSerializer, SignUpSerializer,
-                             TitleReadSerializer, TitleWriteSerializer,
-                             UserSerializer)
+from api.permissions import (
+    IsAdmin,
+    IsAdminModeratorOwnerOrReadOnly,
+    IsAdminOrReadOnly,
+)
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    GetTokenSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
+    UserSerializer,
+)
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -81,17 +90,10 @@ def signup(request):
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
     email = serializer.validated_data['email']
-    try:
-        user, created = User.objects.get_or_create(
-            username=username,
-            email=email,
-        )
-    except ValueError:
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
+    user, created = User.objects.get_or_create(
+        username=username,
+        email=email,
+    )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         'Код подтверждения для завершения регистрации:',

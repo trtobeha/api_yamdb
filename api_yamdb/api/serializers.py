@@ -121,6 +121,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
     )
 
+    class Meta:
+        fields = '__all__'
+        model = Review
+
     def validate_score(self, value):
         if 0 > value > 10:
             raise serializers.ValidationError('Оценка от 0 до 10')
@@ -139,10 +143,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Вы не можете добавить более ' 'одного отзыва на произведение',
             )
         return data
-
-    class Meta:
-        fields = '__all__'
-        model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
