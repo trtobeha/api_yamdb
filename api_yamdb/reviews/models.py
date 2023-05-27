@@ -42,6 +42,12 @@ class User(AbstractUser):
         max_length=10,
     )
 
+    class Meta:
+        ordering = ('username',)
+        default_related_name = 'user'
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
+
     @property
     def is_user(self):
         return self.role == self.USER
@@ -54,12 +60,6 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
 
-    class Meta:
-        ordering = ['username']
-        default_related_name = 'user'
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'пользователи'
-
     def __str__(self) -> str:
         return self.username
 
@@ -70,7 +70,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name = 'категория'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return f'{self.name} {self.name}'
@@ -108,6 +108,7 @@ class Title(models.Model):
 
     class Meta:
         verbose_name = 'произведение'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -192,6 +193,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
+        ordering = ('pub_date',)
 
     def __str__(self):
         return self.text
