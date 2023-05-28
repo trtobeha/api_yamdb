@@ -6,18 +6,27 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from django.shortcuts import get_object_or_404
 
 from api.filters import TitlesFilter
 from api.mixins import ListCreateViewSet
-from api.permissions import (IsAdmin, IsAdminModeratorOwnerOrReadOnly,
-                             IsAdminOrReadOnly)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, GetTokenSerializer,
-                             ReviewSerializer, SignUpSerializer,
-                             TitleReadSerializer, TitleWriteSerializer,
-                             UserSerializer)
+from api.permissions import (
+    IsAdmin,
+    IsAdminModeratorOwnerOrReadOnly,
+    IsAdminOrReadOnly,
+)
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    GetTokenSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
+    UserSerializer,
+)
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -81,26 +90,26 @@ def signup(request):
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
     email = serializer.validated_data['email']
-    try:
+
+    if User.objects.filter(Q(username=username) | Q(email=email)).exists():
+        return Response(
+            serializer.errors,
+            status=status.HTTP_200_OK,
+        )
+    else:
         user, created = User.objects.get_or_create(
             username=username,
             email=email,
         )
-    except ValueError:
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            'Код подтверждения для завершения регистрации:',
+            confirmation_code,
+            'ya@mdb.com',
+            [email],
+            fail_silently=False,
         )
-
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        'Код подтверждения для завершения регистрации:',
-        confirmation_code,
-        'ya@mdb.com',
-        [email],
-        fail_silently=False,
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoryViewSet(ListCreateViewSet):

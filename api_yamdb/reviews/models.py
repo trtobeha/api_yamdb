@@ -8,9 +8,9 @@ class User(AbstractUser):
     MODERATOR = 'moderator'
     USER = 'user'
     ROLES = [
-        (ADMIN, 'Administrator'),
-        (MODERATOR, 'Moderator'),
-        (USER, 'User'),
+        [ADMIN, 'Administrator'],
+        [MODERATOR, 'Moderator'],
+        [USER, 'User'],
     ]
     username = models.CharField(
         max_length=150,
@@ -126,11 +126,11 @@ class GenreTitle(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
-
     class Meta:
         verbose_name = 'произведение и жанр'
+
+    def __str__(self):
+        return f'{self.title}, жанр - {self.genre}'
 
 
 class Review(models.Model):

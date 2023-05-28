@@ -145,7 +145,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class CommentSerializer(serializers.ModelSerializer):
     review = serializers.SlugRelatedField(
         read_only=True,
