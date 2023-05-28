@@ -43,7 +43,7 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ['username']
+        ordering = ('username',)
         default_related_name = 'user'
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
@@ -70,7 +70,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name = 'категория'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return f'{self.name} {self.name}'
@@ -108,6 +108,7 @@ class Title(models.Model):
 
     class Meta:
         verbose_name = 'произведение'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -192,6 +193,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
+        ordering = ('pub_date',)
 
     def __str__(self):
         return self.text

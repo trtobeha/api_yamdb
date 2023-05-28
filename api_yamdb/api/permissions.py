@@ -24,7 +24,6 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         view: viewsets.ModelViewSet,
         obj: models.Model,
     ) -> HttpResponse:
-        del view
         return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user
