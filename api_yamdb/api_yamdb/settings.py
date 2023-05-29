@@ -22,9 +22,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_filters',  # возможно надо удалить эту строку
+    'django_filters',
     'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig',
+    'users.apps.UsersConfig',
+    'titles.apps.TitlesConfig',
 ]
 
 MIDDLEWARE = [
@@ -125,4 +127,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
-AUTH_USER_MODEL = 'reviews.User'
+AUTH_USER_MODEL = 'users.User'
