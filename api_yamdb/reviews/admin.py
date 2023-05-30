@@ -7,8 +7,19 @@ admin.site.register(Comment)
 
 
 class ReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        'pub_date',
+        'text',
+        'author',
+        'score',
+    )
     empty_value_display = '-пусто-'
 
 
 class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'pub_date',
+        'text',
+        'author',
+    )
     empty_value_display = '-пусто-'
