@@ -33,7 +33,7 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        unique_together = ('author', 'title',)
+        unique_together = ('author', 'title')
         ordering = ('pub_date',)
 
     def __str__(self):
