@@ -2,10 +2,6 @@ from django.contrib import admin
 
 from titles.models import Category, Genre, Title
 
-admin.site.register(Title)
-admin.site.register(Category)
-admin.site.register(Genre)
-
 
 class TitleAdmin(admin.ModelAdmin):
     list_display = (
@@ -43,3 +39,8 @@ class GenreAdmin(admin.ModelAdmin):
         'slug',
     )
     empty_value_display = '-пусто-'
+
+
+admin.site.register(Title, TitleAdmin)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Genre, GenreAdmin)

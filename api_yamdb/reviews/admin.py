@@ -2,9 +2,6 @@ from django.contrib import admin
 
 from reviews.models import Comment, Review
 
-admin.site.register(Review)
-admin.site.register(Comment)
-
 
 class ReviewAdmin(admin.ModelAdmin):
     list_display = (
@@ -23,3 +20,7 @@ class CommentAdmin(admin.ModelAdmin):
         'author',
     )
     empty_value_display = '-пусто-'
+
+
+admin.site.register(Review, ReviewAdmin)
+admin.site.register(Comment, CommentAdmin)

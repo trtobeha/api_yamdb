@@ -2,8 +2,6 @@ from django.contrib import admin
 
 from users.models import User
 
-admin.site.register(User)
-
 
 class UsersAdmin(admin.ModelAdmin):
     list_display = (
@@ -14,3 +12,6 @@ class UsersAdmin(admin.ModelAdmin):
         'last_name',
     )
     empty_value_display = '-пусто-'
+
+
+admin.site.register(User, UsersAdmin)
